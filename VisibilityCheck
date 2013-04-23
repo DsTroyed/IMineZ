@@ -1,0 +1,64 @@
+package me.dancingwalrus.IMineZ;
+
+import java.util.List;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
+
+public class VisibilityCheck
+{
+  private IMineZ plugin;
+
+  public VisibilityCheck(IMineZ instance)
+  {
+    this.plugin = instance;
+  }
+
+  public int checkMovement(Player player) {
+    if (player.isSneaking()) {
+      return -1;
+    }
+    if (player.isSprinting()) {
+      return 1;
+    }
+    return 0;
+  }
+  public int checkSurroundings(Player player) {
+    if (player.getLocation().getBlock().getType() == Material.LONG_GRASS) {
+      return -1;
+    }
+    return 0;
+  }
+  public int checkHealth(Player player) {
+    if (player.getHealth() <= this.plugin.getConfig().getInt("visibility.watch.health.hearts")) {
+      return 1;
+    }
+    return 0;
+  }
+  public int checkWeather(Player player) {
+    if (player.getWorld().isThundering()) {
+      return -1;
+    }
+    return 0;
+  }
+  public int checkBiome(Player player) {
+    List goodBiomes = this.plugin.getConfig().getStringList("visibility.watch.biome.low");
+    List badBiomes = this.plugin.getConfig().getStringList("visibility.watch.biome.high");
+    String biome = player.getLocation().getBlock().getBiome().toString().toLowerCase();
+    for (String b : goodBiomes) {
+      if (b.equalsIgnoreCase(biome)) {
+        return -1;
+      }
+    }
+    for (String b : badBiomes) {
+      if (b.equalsIgnoreCase(biome)) {
+        return 1;
+      }
+    }
+    return 0;
+  }
+}
